@@ -91,41 +91,42 @@ Press shortcut `Ctrl+T` after you selected some text. If you are in the collecti
 
 The default service is Google Translate. Currently, we support:
 
-| Translate Service            | Require Secret                | Supported Languages                                                                                                                                                                        |
-| ---------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Google Translate             | No **[Free]**                 | [100+](https://translate.google.com/about/languages/)                                                                                                                                      |
-| Google Translate(API)        | No **[Free]**                 | Use `translate.googleapis.com`                                                                                                                                                             |
-| CNKI                         | No **[Free]**                 | <https://dict.cnki.net>                                                                                                                                                                    |
-| Haici Translate              | No **[Free]**                 | <https://fanyi.dict.cn>                                                                                                                                                                    |
-| Youdao Translate             | No **[Free]**                 | [100+?](https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html)                                                                                                                     |
-| iCIBA Translate              | No **[Free]**                 | <https://www.iciba.com/translate>                                                                                                                                                          |
-| MyMemory                     | No **[Free 5k/day per IP]**   | <https://mymemory.translated.net/><br>(Free upgrade: enter your email in Settings to get 50k/day per IP quota)                                                                             |
-| Bing                         | No **[Free]**                 | [en-zh](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/reference/v3/reference)                                                                            |
-| DeepLX                       | No **[Free]**                 | Based on [DeepLX](https://github.com/OwO-Network/DeepLX?tab=readme-ov-file)                                                                                                                |
-| DeepLX(API)                  | No **[Require config]**       | [DeepLX](https://github.com/OwO-Network/DeepLX?tab=readme-ov-file) related projects                                                                                                        |
-| LibreTranslate               | Optional **[Require config]** | [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate)                                                                                                                         |
-| MTranServer                  | Optional **[Require config]** | [MTranServer](https://github.com/xxnuo/MTranServer)                                                                                                                                        |
-| NLLB                         | No **[Require config]**       | [nllb-api](https://github.com/winstxnhdw/nllb-api?tab=readme-ov-file#self-hosting) or [NLLB Serve](https://github.com/thammegowda/nllb-serve?tab=readme-ov-file#setup)                     |
-| Pot                          | No **[Require config]**       | [Pot](https://github.com/pot-app/pot-desktop) _Translate results show in Pot_                                                                                                              |
-| Huoshan                      | Yes                           | [50+](https://www.volcengine.com/docs/4640/127681)                                                                                                                                         |
-| Volcengine Web               | No **[Free]**                 | [en, zh, and more (auto-detect, web version)](https://translate.volcengine.com/)                                                                                                           |
-| Youdao Zhiyun                | Yes                           | [100+](https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html)                                                                                                                      |
-| Youdao LLM                   | Yes                           | [LLM-based](https://ai.youdao.com/DOCSIRMA/html/trans/api/dmxfy/index.html)(en-zh)                                                                                                         |
-| Niu Trans                    | Yes                           | [400+](https://niutrans.com/documents/contents/trans_text#accessMode)                                                                                                                      |
-| Microsoft Translate          | Yes(free 2M)                  | [200+](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/language-support)                                                                                              |
-| LingoCloud(Caiyun) Translate | Yes                           | [10+](https://docs.caiyunapp.com/lingocloud-api/index.html)                                                                                                                                |
-| DeepL Translate              | Yes(free 500k)                | [100+](https://www.deepl.com/pro?cta=header-prices/#developer)                                                                                                                             |
-| Aliyun Translate             | Yes(free-1M)                  | [200+](https://help.aliyun.com/document_detail/158269.html)                                                                                                                                |
-| Baidu Translate              | Yes(free-QPS1/free-2M)        | [200+](https://fanyi-api.baidu.com/product/11)                                                                                                                                             |
-| Baidu Field                  | Yes(free-QPS1/free-2M)        | [en-zh](https://fanyi-api.baidu.com/product/12)                                                                                                                                            |
-| OpenL                        | Yes                           | [11](https://docs.openl.club/#/API/format)                                                                                                                                                 |
-| Tencent Translate            | Yes(QPS5, free-5M)            | [15](https://cloud.tencent.com/document/product/551/7372)                                                                                                                                  |
-| Tencent Transmart            | No **[Free]**                 | [en, zh, and more (auto-detect, web version)](https://transmart.qq.com/)                                                                                                                   |
-| Xftrans                      | Yes(free 2M)                  | [Xftrans API](https://www.xfyun.cn/doc/nlp/xftrans/API.html)(70+), [NiuTrans API](https://www.xfyun.cn/doc/nlp/niutrans/API.html)(100+)                                                    |
-| GPT                          | Yes(free-$18)                 | [OpenAI](https://openai.com/pricing#chat)(ChatGPT), [AzureGPT](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference#chat-completions), compatible GPT-like LLM (Custom GPT) |
-| Gemini                       | Yes(free-)                    | [LLM-based](https://ai.google.dev/available_regions#available_languages)                                                                                                                   |
-| Qwen-MT                      | Yes(free-)                    | [LLM-based](https://help.aliyun.com/zh/model-studio/user-guide/machine-translation)                                                                                                        |
-| Claude                       | Yes                           | [LLM-based](https://docs.anthropic.com/claude/docs/getting-started-with-the-claude-api)                                                                                                    |
+| Translate Service            | Require Secret                | Supported Languages                                                                                                                                                                                      |
+| ---------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Google Translate             | No **[Free]**                 | [100+](https://translate.google.com/about/languages/)                                                                                                                                                    |
+| Google Translate(API)        | No **[Free]**                 | Use `translate.googleapis.com`                                                                                                                                                                           |
+| CNKI                         | No **[Free]**                 | <https://dict.cnki.net>                                                                                                                                                                                  |
+| Haici Translate              | No **[Free]**                 | <https://fanyi.dict.cn>                                                                                                                                                                                  |
+| Youdao Translate             | No **[Free]**                 | [100+?](https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html)                                                                                                                                   |
+| iCIBA Translate              | No **[Free]**                 | <https://www.iciba.com/translate>                                                                                                                                                                        |
+| MyMemory                     | No **[Free 5k/day per IP]**   | <https://mymemory.translated.net/><br>(Free upgrade: enter your email in Settings to get 50k/day per IP quota)                                                                                           |
+| Bing                         | No **[Free]**                 | [en-zh](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/reference/v3/reference)                                                                                          |
+| DeepLX                       | No **[Free]**                 | Based on [DeepLX](https://github.com/OwO-Network/DeepLX?tab=readme-ov-file)                                                                                                                              |
+| DeepLX(API)                  | No **[Require config]**       | [DeepLX](https://github.com/OwO-Network/DeepLX?tab=readme-ov-file) related projects                                                                                                                      |
+| LibreTranslate               | Optional **[Require config]** | [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate)                                                                                                                                       |
+| MTranServer                  | Optional **[Require config]** | [MTranServer](https://github.com/xxnuo/MTranServer)                                                                                                                                                      |
+| NLLB                         | No **[Require config]**       | [nllb-api](https://github.com/winstxnhdw/nllb-api?tab=readme-ov-file#self-hosting) or [NLLB Serve](https://github.com/thammegowda/nllb-serve?tab=readme-ov-file#setup)                                   |
+| Pot                          | No **[Require config]**       | [Pot](https://github.com/pot-app/pot-desktop) _Translate results show in Pot_                                                                                                                            |
+| Huoshan                      | Yes                           | [50+](https://www.volcengine.com/docs/4640/127681)                                                                                                                                                       |
+| Volcengine Web               | No **[Free]**                 | [en, zh, and more (auto-detect, web version)](https://translate.volcengine.com/)                                                                                                                         |
+| Youdao Zhiyun                | Yes                           | [100+](https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html)                                                                                                                                    |
+| Youdao LLM                   | Yes                           | [LLM-based](https://ai.youdao.com/DOCSIRMA/html/trans/api/dmxfy/index.html)(en-zh)                                                                                                                       |
+| Niu Trans                    | Yes                           | [400+](https://niutrans.com/documents/contents/trans_text#accessMode)                                                                                                                                    |
+| Microsoft Translate          | Yes(free 2M)                  | [200+](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/language-support)                                                                                                            |
+| LingoCloud(Caiyun) Translate | Yes                           | [10+](https://docs.caiyunapp.com/lingocloud-api/index.html)                                                                                                                                              |
+| DeepL Translate              | Yes(free 500k)                | [100+](https://www.deepl.com/pro?cta=header-prices/#developer)                                                                                                                                           |
+| Aliyun Translate             | Yes(free-1M)                  | [200+](https://help.aliyun.com/document_detail/158269.html)                                                                                                                                              |
+| Baidu Translate              | Yes(free-QPS1/free-2M)        | [200+](https://fanyi-api.baidu.com/product/11)                                                                                                                                                           |
+| Baidu Field                  | Yes(free-QPS1/free-2M)        | [en-zh](https://fanyi-api.baidu.com/product/12)                                                                                                                                                          |
+| OpenL                        | Yes                           | [11](https://docs.openl.club/#/API/format)                                                                                                                                                               |
+| Tencent Translate            | Yes(QPS5, free-5M)            | [15](https://cloud.tencent.com/document/product/551/7372)                                                                                                                                                |
+| Tencent Transmart            | No **[Free]**                 | [en, zh, and more (auto-detect, web version)](https://transmart.qq.com/)                                                                                                                                 |
+| Xftrans                      | Yes(free 2M)                  | [Xftrans API](https://www.xfyun.cn/doc/nlp/xftrans/API.html)(70+), [NiuTrans API](https://www.xfyun.cn/doc/nlp/niutrans/API.html)(100+)                                                                  |
+| GPT                          | Yes(free-$18)                 | [OpenAI](https://openai.com/pricing#chat)(ChatGPT), [AzureGPT](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference#chat-completions), compatible GPT-like LLM (Custom GPT)               |
+| Gemini                       | Yes(free-)                    | [LLM-based](https://ai.google.dev/available_regions#available_languages)                                                                                                                                 |
+| Qwen-MT                      | Yes(free-)                    | [LLM-based](https://help.aliyun.com/zh/model-studio/user-guide/machine-translation)                                                                                                                      |
+| Claude                       | Yes                           | [LLM-based](https://docs.anthropic.com/claude/docs/getting-started-with-the-claude-api)                                                                                                                  |
+| Custom LLM                   | Yes                           | Any OpenAI-compatible chat API: [DeepSeek](https://api-docs.deepseek.com/), [OpenCode Zen](https://opencode.ai/docs/zen/), self-hosted gateways. Base URL, model ID and context window are configurable. |
 
 > If the service you want is not yet supported, please post an issue.
 
@@ -230,6 +231,93 @@ The secret format is `sk-*` for ChatGPT, and `MY_APIKEY` for AzureGPT and Custom
 Support third-party or self-deployed compatible APIs.
 
 > [Chinese Document](https://gist.github.com/GrayXu/f1b72353b4b0493d51d47f0f7498b67b)
+
+#### Custom LLM providers
+
+`Custom LLM (DeepSeek / OpenCode)` connects the plugin to any OpenAI-compatible
+chat API, so you can translate with your own model instead of a built-in
+translation service. DeepSeek and OpenCode Zen are offered as presets; every
+value stays editable, and nothing is tied to a fixed endpoint or model.
+
+Set it up in **Edit → Settings → Translate → Service**:
+
+1. Pick `Custom LLM (DeepSeek / OpenCode) 🗝️` as the **Sentence Service**.
+2. Paste your API key into the key field next to the dropdown. The key is kept
+   in Zotero's shared key store (the same one used by _Manage Keys_) and is
+   never written into the plugin's preference file.
+3. Click the button next to the key field to open the service settings and fill
+   in:
+
+   | Setting               | Description                                                                                                                                                                                                                                                |
+   | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | **Provider preset**   | Pre-fills _Base URL_ and _Model ID_ for DeepSeek, OpenCode Zen or a custom provider. It only fills the fields — you can always overwrite them.                                                                                                             |
+   | **Base URL**          | Base URL of the API. `/chat/completions` is appended automatically and the resulting _Request URL_ is previewed underneath. Examples: `https://api.deepseek.com/v1`, `https://opencode.ai/zen/v1`, `https://opencode.ai/zen/v1/responses` (Responses API). |
+   | **Model ID**          | Exact model ID of your provider, e.g. `deepseek-chat`, `deepseek-reasoner`, `deepseek-v4-flash`, `glm-5.3-flash`.                                                                                                                                          |
+   | **API Key**           | Optional copy of the key field above; both write the same value. Leave it untouched to keep the current key.                                                                                                                                               |
+   | **Context window**    | Context size of the model in tokens (default `264000`). Long selections are split at paragraph/sentence boundaries so a single request never exceeds it, then translated in order and joined automatically.                                                |
+   | **Max output tokens** | `0` lets the provider decide.                                                                                                                                                                                                                              |
+   | **Temp**              | Sampling temperature.                                                                                                                                                                                                                                      |
+   | **Prompt**            | Must contain `${sourceText}`. `${langFrom}` and `${langTo}` are also available.                                                                                                                                                                            |
+   | **Stream**            | Show the answer while it is being generated.                                                                                                                                                                                                               |
+   | **Custom Request**    | Extra JSON fields merged into the request body, e.g. `top_p` or a provider-specific thinking switch.                                                                                                                                                       |
+   | **Session ID header** | Sent as `x-opencode-session`. The OpenCode Go and Zen gateways require a stable session id for routing and prompt caching; other providers ignore it. Auto-generated on first run — clear the field to stop sending it.                                    |
+   | **Custom Headers**    | Extra HTTP headers sent with every request, as a JSON object. Use this for gateway-specific requirements; it can also override the built-in headers.                                                                                                       |
+
+4. Use **Test connection** to verify the Base URL, the API key and the Model ID
+   in one click. The provider's own error message is shown when something is
+   wrong (invalid key, unknown model, rate limit, ...).
+
+The service also understands the OpenAI **Responses API**: point the Base URL at
+an endpoint ending in `/responses` and the request/response format is adapted
+automatically.
+
+##### Making translation faster
+
+Almost all of the waiting time is the model's own latency, so the settings
+below matter far more than anything else:
+
+1. **Use a fast model.** Flash / mini / lite tiers are several times quicker
+   than the flagship ones, and are perfectly adequate for translation —
+   e.g. `deepseek-v4-flash`, `glm-5.3-flash`, `mimo-v2.6-flash`.
+2. **Turn off thinking / reasoning.** A reasoning model spends seconds
+   generating hidden reasoning tokens before the translation starts. If your
+   provider supports it, disable it in **Custom Request**, for example
+   `{"thinking": {"type": "disabled"}}` (GLM) or `{"enable_thinking": false}`
+   (Qwen). Check your provider's documentation for the exact field.
+3. **Keep _Stream_ on.** It does not shorten the total time, but the answer
+   appears as it is generated instead of after a long silence.
+4. **Leave _Attach paper context_ off** (Settings → Translate → General)
+   unless you need it: it adds the paper's title and abstract to every
+   request.
+5. **Avoid concat mode** for long reading sessions. Each addition
+   re-translates the whole accumulated text, so cost grows quadratically.
+
+For bulk work (translating the titles or abstracts of many items, or
+annotations), Settings → Translate → **Advanced** has:
+
+| Setting                                 | Default | Notes                                                               |
+| --------------------------------------- | ------- | ------------------------------------------------------------------- |
+| **Bulk translation: parallel requests** | `1`     | Raise to `3`–`5` with your own API. Keep `1` for the free services. |
+| **Bulk translation: pause (ms)**        | `1000`  | `0` removes the artificial pause between requests.                  |
+
+Long texts that exceed the context window are split and translated in
+parallel (**Parallel parts** in the service settings, default `3`), then joined
+back in the original order.
+
+Requests identify the plugin with a `Zotero-PDF-Translate/<version>` user agent
+and carry a stable `x-opencode-session` header, as required by the
+[OpenCode Go](https://opencode.ai/docs/go/) and
+[OpenCode Zen](https://opencode.ai/docs/zen/) gateways. The presets are:
+
+| Preset           | Base URL                        |
+| ---------------- | ------------------------------- |
+| **DeepSeek**     | `https://api.deepseek.com/v1`   |
+| **OpenCode Zen** | `https://opencode.ai/zen/v1`    |
+| **OpenCode Go**  | `https://opencode.ai/zen/go/v1` |
+
+> Nothing here is hard-coded: the Base URL, the model ID, the context window and
+> the prompt are ordinary plugin preferences and can be changed at any time. The
+> API key is never stored in the repository or in the plugin's preference file.
 
 **Gemini**  
 Apply [here](https://ai.google.dev/gemini-api/docs).  

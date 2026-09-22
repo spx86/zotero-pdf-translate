@@ -114,6 +114,10 @@ pref-advanced-disabledLanguages =
 pref-advanced-disabledLanguages-alert = Reopen files or restart Zotero to apply changes.
 pref-advanced-extraEngines =
     .value = Additional services in standalone window (comma-separated)
+pref-advanced-batchConcurrency =
+    .value = Bulk translation: parallel requests (1 = safest for free services)
+pref-advanced-batchDelay =
+    .value = Bulk translation: pause between requests (ms)
 pref-advanced-splitChar =
     .value = Delimiter (between text and translation)
 pref-advanced-resultRegex =

@@ -109,6 +109,7 @@ export type AllowedSettingsMethods = Pick<
   | "addSelectSetting"
   | "addTextAreaSetting"
   | "addCustomParamsSetting"
+  | "addCustomHeadersSetting"
   | "addButton"
   | "addSetting"
   | "addStaticRow"
@@ -215,7 +216,21 @@ export class ServiceSettingsDialog extends SettingsDialogHelper {
     return this.addButton(getString(field.nameKey), field.prefKey, {
       noClose: true,
       callback(ev) {
-        openCustomRequestDialog(field.prefKey);
+        openCustomRequestDialog(field.prefKey, "body");
+      },
+    });
+  }
+
+  /**
+   * Add a button opening a key/value editor for an extra HTTP headers object.
+   *
+   * The value is stored as a JSON object in `field.prefKey`.
+   */
+  addCustomHeadersSetting(field: ParamsField): AllowedSettingsMethods {
+    return this.addButton(getString(field.nameKey), field.prefKey, {
+      noClose: true,
+      callback(ev) {
+        openCustomRequestDialog(field.prefKey, "headers");
       },
     });
   }
@@ -411,7 +426,18 @@ function formatCustomParamsValidationMessage(
   return lines.join("\n");
 }
 
-async function openCustomRequestDialog(prefKey: string) {
+async function openCustomRequestDialog(
+  prefKey: string,
+  kind: "body" | "headers" = "body",
+) {
+  const titleKey =
+    kind === "headers"
+      ? "service-dialog-custom-headers-title"
+      : "service-dialog-custom-request-title";
+  const descriptionKey =
+    kind === "headers"
+      ? "service-dialog-custom-headers-description"
+      : "service-dialog-custom-request-description";
   const dialog = new ztoolkit.Dialog(2, 1);
   const parameterNameHeader = getString(
     "service-dialog-custom-request-parameter-name",
@@ -529,7 +555,7 @@ async function openCustomRequestDialog(prefKey: string) {
               marginBottom: "15px",
             },
             properties: {
-              innerHTML: getString(`service-dialog-custom-request-description`),
+              innerHTML: getString(descriptionKey),
             },
           },
           {
@@ -647,7 +673,7 @@ async function openCustomRequestDialog(prefKey: string) {
     )
     .addButton(getString(`service-dialog-close`), "close")
     .addButton(getString(`service-dialog-save`), "save")
-    .open(getString(`service-dialog-custom-request-title`));
+    .open(getString(titleKey));
 
   await dialogData.unloadLock?.promise;
 

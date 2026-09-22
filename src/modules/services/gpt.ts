@@ -1,128 +1,34 @@
 import { buildPromptParts, getPref, getString } from "../../utils";
 import { TranslateService } from "./base";
 import { hasSourceTextPlaceholder } from "./gptPrompt";
+import {
+  isResponsesApiEndpoint,
+  parseCustomParams,
+  parseNonStreamResponse,
+  parseResponsesApiNonStreamResponse,
+  parseResponsesApiStreamResponse,
+  parseStreamResponse,
+} from "./openaiResponse";
+
+// Re-exported for backwards compatibility: these helpers used to live here.
+export {
+  extractResponseText,
+  isResponsesApiEndpoint,
+  parseCustomParams,
+  parseNonStreamResponse,
+  parseResponsesApiNonStreamResponse,
+  parseResponsesApiStreamResponse,
+  parseStreamResponse,
+  resolveChatEndpoint,
+} from "./openaiResponse";
+export type { ParsedResponse } from "./openaiResponse";
 
 type ID = "chatgpt" | "customgpt1" | "customgpt2" | "customgpt3" | "azuregpt";
 
 function getCustomParams(prefix: string): Record<string, any> {
-  const storedCustomParams =
-    (getPref(`${prefix}.customParams`) as string) || "{}";
-  try {
-    const customParams = JSON.parse(storedCustomParams);
-    // Filter out parameters that are already defined (for both Chat Completions and Responses API)
-    const standardParams = [
-      "model",
-      "messages",
-      "input",
-      "temperature",
-      "stream",
-    ];
-    return Object.fromEntries(
-      Object.entries(customParams).filter(
-        ([key]) => !standardParams.includes(key),
-      ),
-    );
-  } catch (e) {
-    return {};
-  }
-}
-
-interface ParsedResponse {
-  content: string;
-  finished: boolean;
-}
-
-/**
- * Detect if the endpoint URL is for OpenAI Responses API
- */
-function isResponsesApiEndpoint(url: string): boolean {
-  return url.endsWith("/responses") || url.includes("/responses?");
-}
-
-/**
- * Parse streaming response for OpenAI Responses API
- * Event format: { "type": "response.output_text.delta", "delta": "text", ... }
- */
-function parseResponsesApiStreamResponse(obj: any): ParsedResponse {
-  const eventType = obj.type || "";
-
-  // Text delta event - this is the main event for streaming text
-  // Format: { "type": "response.output_text.delta", "delta": "In", ... }
-  if (eventType === "response.output_text.delta") {
-    return {
-      content: obj.delta || "",
-      finished: false,
-    };
-  }
-
-  // Completion events
-  if (
-    eventType === "response.completed" ||
-    eventType === "response.done" ||
-    eventType === "response.failed" ||
-    eventType === "response.incomplete"
-  ) {
-    return {
-      content: "",
-      finished: true,
-    };
-  }
-
-  // Other events we don't need to extract content from:
-  // response.created, response.in_progress, response.output_item.added,
-  // response.content_part.added, response.output_text.done, etc.
-  return { content: "", finished: false };
-}
-
-/**
- * Parse non-streaming response for OpenAI Responses API
- * Response format: { output: [{ type: "message", content: [{ type: "output_text", text: "..." }] }] }
- */
-function parseResponsesApiNonStreamResponse(obj: any): string {
-  if (obj.output && Array.isArray(obj.output)) {
-    for (const item of obj.output) {
-      if (item.type === "message" && item.content) {
-        for (const content of item.content) {
-          if (content.type === "output_text") {
-            return content.text || "";
-          }
-        }
-      }
-    }
-  }
-  return "";
-}
-
-function parseStreamResponse(obj: any): ParsedResponse {
-  // Handle OpenAI format (choices array with delta)
-  if (obj.choices && obj.choices[0]) {
-    const choice = obj.choices[0];
-    return {
-      content: choice.delta?.content || "",
-      finished:
-        choice.finish_reason !== undefined && choice.finish_reason !== null,
-    };
-  }
-  // Handle Ollama native format (direct message)
-  else if (obj.message) {
-    return {
-      content: obj.message.content || "",
-      finished: obj.done === true,
-    };
-  }
-  return { content: "", finished: false };
-}
-
-function parseNonStreamResponse(obj: any): string {
-  // Handle OpenAI format (choices array)
-  if (obj.choices && obj.choices[0]) {
-    return obj.choices[0].message.content || "";
-  }
-  // Handle Ollama native format (direct message)
-  else if (obj.message && obj.message.content) {
-    return obj.message.content;
-  }
-  return "";
+  return parseCustomParams(
+    (getPref(`${prefix}.customParams`) as string) || "{}",
+  );
 }
 
 const gptTranslate = async function (

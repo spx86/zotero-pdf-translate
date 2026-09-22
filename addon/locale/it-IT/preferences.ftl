@@ -114,6 +114,10 @@ pref-advanced-disabledLanguages =
 pref-advanced-disabledLanguages-alert = Riapri i file o riavvia Zotero per applicare le modifiche.
 pref-advanced-extraEngines =
     .value = Servizi extra nella finestra indipendente (separare con ',')
+pref-advanced-batchConcurrency =
+    .value = Traduzione in blocco: richieste parallele (1 = piu sicuro per i servizi gratuiti)
+pref-advanced-batchDelay =
+    .value = Traduzione in blocco: pausa tra le richieste (ms)
 pref-advanced-splitChar =
     .value = Carattere di divisione (tra testo e traduzione)
 pref-advanced-resultRegex =

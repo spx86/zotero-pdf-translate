@@ -96,4 +96,10 @@ export function setDefaultPrefSettings() {
   if (!getPref("annotationTagContent")) {
     setPref("annotationTagContent", isZhCN ? "翻译" : "Translation");
   }
+
+  // The OpenCode Go/Zen gateways require a stable session id on every request,
+  // used for routing and prompt caching. Generate one once per installation.
+  if (!getPref("customllm.sessionId")) {
+    setPref("customllm.sessionId", `zpt-${Zotero.Utilities.randomString(32)}`);
+  }
 }

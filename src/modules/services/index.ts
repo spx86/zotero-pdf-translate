@@ -12,6 +12,7 @@ import {
 import { Aliyun } from "./aliyun";
 import { Tencent } from "./tencent";
 import { ChatGPT, customGPT1, customGPT2, customGPT3, azureGPT } from "./gpt";
+import { CustomLLM } from "./customllm";
 import { Baidu } from "./baidu";
 import { BaiduField } from "./baidufield";
 import { Bing } from "./bing";
@@ -74,6 +75,7 @@ const register: TranslateService[] = [
   customGPT1,
   customGPT2,
   customGPT3,
+  CustomLLM,
   azureGPT,
   Haici,
   HaiciDict,

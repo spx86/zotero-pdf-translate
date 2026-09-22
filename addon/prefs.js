@@ -47,6 +47,11 @@ pref("__prefsPrefix__.niutransMemoryLibList", "[]");
 pref("__prefsPrefix__.autoPlay", false);
 pref("__prefsPrefix__.showPlayBtn", true);
 pref("__prefsPrefix__.enableAutoDetectLanguage", true);
+// Bulk translation (titles/abstracts/annotations of many items).
+// 1 concurrent task and a 1000 ms pause is the safe default for the
+// rate-limited free services; raise them when using your own LLM API.
+pref("__prefsPrefix__.batchConcurrency", "1");
+pref("__prefsPrefix__.batchDelay", "1000");
 pref("__prefsPrefix__.disabledLanguages", "");
 pref("__prefsPrefix__.extraEngines", "");
 pref("__prefsPrefix__.titleColumnMode", "raw");
@@ -130,3 +135,26 @@ pref("__prefsPrefix__.nllb.serveendpoint", "http://localhost:6060");
 pref("__prefsPrefix__.customGPT1.temperature", "1.0");
 pref("__prefsPrefix__.customGPT2.temperature", "1.0");
 pref("__prefsPrefix__.customGPT3.temperature", "1.0");
+// Custom LLM (OpenAI-compatible providers such as DeepSeek or OpenCode Zen).
+// Every value below is user-editable in the service settings dialog; the API
+// key is NOT stored here, it lives in Zotero's shared secret store.
+pref("__prefsPrefix__.customllm.provider", "deepseek");
+pref("__prefsPrefix__.customllm.baseUrl", "https://api.deepseek.com/v1");
+pref("__prefsPrefix__.customllm.model", "deepseek-chat");
+pref("__prefsPrefix__.customllm.contextWindow", "264000");
+pref("__prefsPrefix__.customllm.maxTokens", "0");
+// How many parts of a long text are translated at the same time.
+pref("__prefsPrefix__.customllm.concurrency", "3");
+pref("__prefsPrefix__.customllm.temperature", "1.0");
+pref(
+  "__prefsPrefix__.customllm.prompt",
+  "As an academic expert with specialized knowledge in various fields, please provide a proficient and precise translation from ${langFrom} to ${langTo} of the academic text enclosed in 🔤. It is crucial to maintaining the original phrase or sentence and ensure accuracy while utilizing the appropriate language. The text is as follows:  🔤 ${sourceText} 🔤  Please provide the translated result without any additional explanation and remove 🔤.",
+);
+pref("__prefsPrefix__.customllm.stream", true);
+pref("__prefsPrefix__.customllm.customParams", "");
+// Extra HTTP headers, as a JSON object. Sent as-is, so a gateway that needs a
+// custom header can be used without changing the plugin.
+pref("__prefsPrefix__.customllm.customHeaders", "");
+// Stable session id sent as `x-opencode-session`. Required by the OpenCode
+// Go/Zen gateways, ignored by other providers. Generated on first run.
+pref("__prefsPrefix__.customllm.sessionId", "");

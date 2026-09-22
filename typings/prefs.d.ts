@@ -56,6 +56,8 @@ declare namespace _ZoteroTypes {
       "autoPlay": boolean;
       "showPlayBtn": boolean;
       "enableAutoDetectLanguage": boolean;
+      "batchConcurrency": string;
+      "batchDelay": string;
       "disabledLanguages": string;
       "extraEngines": string;
       "titleColumnMode": string;
@@ -111,6 +113,18 @@ declare namespace _ZoteroTypes {
       "customGPT1.temperature": string;
       "customGPT2.temperature": string;
       "customGPT3.temperature": string;
+      "customllm.provider": string;
+      "customllm.baseUrl": string;
+      "customllm.model": string;
+      "customllm.contextWindow": string;
+      "customllm.maxTokens": string;
+      "customllm.concurrency": string;
+      "customllm.temperature": string;
+      "customllm.prompt": string;
+      "customllm.stream": boolean;
+      "customllm.customParams": string;
+      "customllm.customHeaders": string;
+      "customllm.sessionId": string;
     };
   }
 }

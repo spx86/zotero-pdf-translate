@@ -12,6 +12,7 @@ import { buildReaderPopup, updateReaderPopup } from "./modules/popup";
 import { registerNotify } from "./modules/notify";
 import { registerReaderInitializer } from "./modules/reader";
 import { getPref } from "./utils/prefs";
+import { runWithConcurrency } from "./utils/concurrency";
 import {
   addTranslateAnnotationTask,
   addTranslateTask,
@@ -217,16 +218,51 @@ async function onTranslate(...data: any) {
   await addon.data.translate.services.runTranslationTask(task, options);
 }
 
+/**
+ * Read the bulk-translation tuning preferences.
+ *
+ * `1` concurrent task and a 1000 ms pause is the safe default for the
+ * rate-limited free services. Users of a paid API can raise the concurrency
+ * and drop the pause in Settings > Advanced.
+ */
+function getBatchOptions() {
+  const concurrency = parseInt(String(getPref("batchConcurrency")), 10);
+  const delay = parseInt(String(getPref("batchDelay")), 10);
+  return {
+    concurrency:
+      Number.isFinite(concurrency) && concurrency > 0 ? concurrency : 1,
+    delay: Number.isFinite(delay) && delay >= 0 ? delay : 1000,
+  };
+}
+
 async function onTranslateInBatch(
   tasks: TranslateTask[],
   options: Parameters<
     Addon["data"]["translate"]["services"]["runTranslationTask"]
   >["1"] = {},
 ) {
-  for (const task of tasks) {
-    await addon.hooks.onTranslate(task, options);
-    await Zotero.Promise.delay(addon.data.translate.batchTaskDelay);
+  const { concurrency, delay } = getBatchOptions();
+  const pause = async () => {
+    if (delay > 0) {
+      await Zotero.Promise.delay(delay);
+    }
+  };
+
+  if (concurrency <= 1 || tasks.length <= 1) {
+    for (const task of tasks) {
+      await addon.hooks.onTranslate(task, options);
+      await pause();
+    }
+    return;
   }
+
+  // Translate several tasks at once. Each task owns its own slot in the
+  // queue, so results stay attached to the right item regardless of the
+  // order in which the requests finish.
+  await runWithConcurrency(tasks, concurrency, async (task) => {
+    await addon.hooks.onTranslate(task, options);
+    await pause();
+  });
 }
 
 function onReaderPopupShow(
