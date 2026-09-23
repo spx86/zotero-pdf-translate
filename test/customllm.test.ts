@@ -8,6 +8,7 @@ import {
   findHeaderUnsafeChar,
   findUnsafeHeader,
   formatCodePoint,
+  inspectResponse,
   normalizeApiKey,
   parseCustomHeaders,
   parseCustomParams,
@@ -347,5 +348,72 @@ describe("Custom LLM: custom headers", function () {
         "x-opencode-session": "zpt-0123456789abcdef",
       }),
     );
+  });
+});
+
+describe("Custom LLM: response diagnostics", function () {
+  /** The shape DeepSeek returns when thinking eats the whole output budget. */
+  const reasoningOnly = JSON.stringify({
+    id: "x",
+    object: "chat.completion",
+    model: "deepseek-flash",
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: "assistant",
+          content: "",
+          reasoning_content: "The user is asking a connectivity test.",
+        },
+        finish_reason: "length",
+      },
+    ],
+    usage: {
+      completion_tokens: 16,
+      completion_tokens_details: { reasoning_tokens: 16 },
+    },
+  });
+
+  it("detects an answer that only contains reasoning", function () {
+    const info = inspectResponse(reasoningOnly);
+    assert.isNotNull(info);
+    assert.isFalse(info!.hasContent);
+    assert.isTrue(info!.hasReasoning);
+    assert.strictEqual(info!.reasoningTokens, 16);
+    assert.strictEqual(info!.finishReason, "length");
+  });
+
+  it("reports a normal answer as content", function () {
+    const info = inspectResponse(
+      JSON.stringify({
+        choices: [
+          {
+            message: { role: "assistant", content: "pong" },
+            finish_reason: "stop",
+          },
+        ],
+        usage: { completion_tokens: 1 },
+      }),
+    );
+    assert.isTrue(info!.hasContent);
+    assert.isFalse(info!.hasReasoning);
+    assert.strictEqual(info!.finishReason, "stop");
+  });
+
+  it("counts reasoning reported only through usage", function () {
+    const info = inspectResponse(
+      JSON.stringify({
+        choices: [{ message: { content: "" }, finish_reason: "length" }],
+        usage: { completion_tokens_details: { reasoning_tokens: 42 } },
+      }),
+    );
+    assert.isTrue(info!.hasReasoning);
+    assert.strictEqual(info!.reasoningTokens, 42);
+  });
+
+  it("returns null for bodies it cannot read", function () {
+    assert.isNull(inspectResponse(""));
+    assert.isNull(inspectResponse("not json"));
+    assert.isNull(inspectResponse('{"error": {"message": "nope"}}'));
   });
 });

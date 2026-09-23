@@ -1,6 +1,9 @@
 import "./addonStub";
 
-import { CustomLLM } from "../src/modules/services/customllm";
+import {
+  CustomLLM,
+  testCustomLlmConnection,
+} from "../src/modules/services/customllm";
 import { getPref, setPref } from "../src/utils/prefs";
 
 /**
@@ -292,5 +295,99 @@ describe("Custom LLM: long text", function () {
     // The first part succeeded, the second failed, and the remaining parts
     // were never requested.
     assert.strictEqual(requests.length, 2);
+  });
+});
+
+describe("Custom LLM: thinking models", function () {
+  afterEach(reset);
+
+  /** What DeepSeek returns when reasoning eats the whole output budget. */
+  function reasoningOnlyReply(): Reply {
+    return {
+      status: 200,
+      body: JSON.stringify({
+        choices: [
+          {
+            message: {
+              role: "assistant",
+              content: "",
+              reasoning_content: "The user is asking a connectivity test.",
+            },
+            finish_reason: "length",
+          },
+        ],
+        usage: {
+          completion_tokens: 16,
+          completion_tokens_details: { reasoning_tokens: 16 },
+        },
+      }),
+    };
+  }
+
+  it("still reports a successful connection when only reasoning came back", async function () {
+    registerEndpoint(reasoningOnlyReply);
+    applyPrefs({});
+
+    const result = await testCustomLlmConnection({
+      baseUrl: BASE_URL,
+      model: "e2e-model",
+      apiKey: "sk-e2e-test-key",
+      sessionId: "zpt-e2e-session",
+    });
+
+    // Regression: this used to throw "the model returned an empty answer" and
+    // was shown as a failed connection, even though the request succeeded.
+    assert.isTrue(result.emptyReply);
+    assert.strictEqual(result.reply, "");
+    assert.strictEqual(result.reasoningTokens, 16);
+    assert.strictEqual(result.finishReason, "length");
+  });
+
+  it("does not cap the answer of the connection test", async function () {
+    registerEndpoint(echoSource);
+    applyPrefs({ "customllm.maxTokens": "0" });
+
+    await testCustomLlmConnection({
+      baseUrl: BASE_URL,
+      model: "e2e-model",
+      apiKey: "sk-e2e-test-key",
+    });
+
+    // No max_tokens is sent, so a thinking model has room to answer.
+    assert.isUndefined(captured!.body.max_tokens);
+  });
+
+  it("sends the session header and the custom headers when testing", async function () {
+    registerEndpoint(echoSource);
+    applyPrefs({});
+
+    await testCustomLlmConnection({
+      baseUrl: BASE_URL,
+      model: "e2e-model",
+      apiKey: "sk-e2e-test-key",
+      sessionId: "zpt-e2e-session",
+      customHeaders: { "x-gateway-route": "eu" },
+    });
+
+    // Regression: the test button used to drop both of these.
+    assert.strictEqual(
+      captured!.headers["x-opencode-session"],
+      "zpt-e2e-session",
+    );
+    assert.strictEqual(captured!.headers["x-gateway-route"], "eu");
+  });
+
+  it("explains that a reasoning-only answer is not a translation", async function () {
+    registerEndpoint(reasoningOnlyReply);
+    applyPrefs({});
+
+    let message = "";
+    try {
+      await CustomLLM.translate(makeTask("Hello, world"));
+    } catch (e: any) {
+      message = e?.message || String(e);
+    }
+
+    assert.include(message, "customllm-error-empty-reasoning");
   });
 });

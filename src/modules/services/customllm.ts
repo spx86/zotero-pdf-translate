@@ -18,6 +18,7 @@ import {
   findHeaderUnsafeChar,
   findUnsafeHeader,
   formatCodePoint,
+  inspectResponse,
   isResponsesApiEndpoint,
   normalizeApiKey,
   parseCustomHeaders,
@@ -56,7 +57,7 @@ const PROVIDER_PRESETS: Record<
   deepseek: {
     labelKey: "service-customllm-provider-deepseek",
     baseUrl: "https://api.deepseek.com/v1",
-    model: "deepseek-chat",
+    model: "deepseek-flash",
   },
   opencode: {
     labelKey: "service-customllm-provider-opencode",
@@ -321,16 +322,41 @@ function buildRequestBody(
 }
 
 /**
- * Send one completion request and return the translated text.
+ * Build the error shown when the provider answered but sent no text.
+ *
+ * Thinking models spend the whole output budget on hidden reasoning before
+ * writing any answer, which is by far the most common cause.
+ */
+function describeEmptyAnswer(rawBody: string): string {
+  const info = inspectResponse(rawBody);
+  if (info?.hasReasoning && !info.hasContent) {
+    return getString("service-customllm-error-empty-reasoning", {
+      args: {
+        tokens: info.reasoningTokens,
+        reason: info.finishReason || "-",
+      },
+    });
+  }
+  if (info?.finishReason === "length") {
+    return getString("service-customllm-error-empty-truncated");
+  }
+  return getString("service-customllm-error-empty");
+}
+
+/**
+ * Send one completion request.
+ *
+ * Returns the answer text together with the raw body, so callers can inspect
+ * the provider's own diagnostics when the answer is empty.
  *
  * @param onPartial called with the text received so far while streaming.
  */
-async function requestCompletion(
+async function requestCompletionRaw(
   cfg: CustomLlmConfig,
   system: string,
   user: string,
   onPartial?: (textSoFar: string) => void,
-): Promise<string> {
+): Promise<{ text: string; rawBody: string }> {
   const useResponsesApi = isResponsesApiEndpoint(cfg.endpoint);
   const body = buildRequestBody(cfg, system, user, useResponsesApi, cfg.stream);
 
@@ -382,14 +408,33 @@ async function requestCompletion(
     );
   }
 
-  const full = extractResponseText(xhr.responseText || "", useResponsesApi);
-  const text = (full || streamed).trim();
+  const rawBody = xhr.responseText || "";
+  const full = extractResponseText(rawBody, useResponsesApi);
+  return { text: (full || streamed).trim(), rawBody };
+}
+
+/**
+ * Send one completion request and return the translated text.
+ *
+ * An empty answer is never useful, so it is turned into an error explaining
+ * the likely cause and quoting the provider's own response.
+ */
+async function requestCompletion(
+  cfg: CustomLlmConfig,
+  system: string,
+  user: string,
+  onPartial?: (textSoFar: string) => void,
+): Promise<string> {
+  const { text, rawBody } = await requestCompletionRaw(
+    cfg,
+    system,
+    user,
+    onPartial,
+  );
   if (!text) {
-    // An empty answer is never useful; show the raw body so the cause
-    // (wrong model, truncated reasoning, gateway notice) is visible.
-    const detail = (xhr.responseText || "").trim().slice(0, 800);
+    const detail = rawBody.trim().slice(0, 800);
     throw new Error(
-      `${getString("service-customllm-error-empty")}${detail ? `\n${detail}` : ""}`,
+      `${describeEmptyAnswer(rawBody)}${detail ? `\n${detail}` : ""}`,
     );
   }
   return text;
@@ -409,7 +454,15 @@ export async function testCustomLlmConnection(cfg: {
   customParams?: Record<string, any>;
   customHeaders?: Record<string, string>;
   sessionId?: string;
-}): Promise<{ endpoint: string; reply: string; elapsedMs: number }> {
+}): Promise<{
+  endpoint: string;
+  reply: string;
+  elapsedMs: number;
+  /** Set when the provider answered but sent no text (e.g. only reasoning). */
+  emptyReply: boolean;
+  finishReason: string;
+  reasoningTokens: number;
+}> {
   const endpoint = resolveChatEndpoint(cfg.baseUrl);
   const full: CustomLlmConfig = {
     endpoint,
@@ -418,7 +471,10 @@ export async function testCustomLlmConnection(cfg: {
       ? (cfg.temperature as number)
       : 1,
     stream: false,
-    maxTokens: cfg.maxTokens && cfg.maxTokens > 0 ? cfg.maxTokens : 16,
+    // The connection test does not cap the answer: a thinking model needs room
+    // for its reasoning before it writes any text, and a tiny cap made the
+    // test fail even though the endpoint, the key and the model were fine.
+    maxTokens: cfg.maxTokens && cfg.maxTokens > 0 ? cfg.maxTokens : 0,
     contextWindow: DEFAULT_CONTEXT_WINDOW,
     apiKey: normalizeApiKey(cfg.apiKey),
     customParams: cfg.customParams || {},
@@ -430,15 +486,21 @@ export async function testCustomLlmConnection(cfg: {
   // button reports exactly the same problem.
   assertConfigured(full);
   const started = Date.now();
-  const reply = await requestCompletion(
+  // A valid HTTP response already proves the endpoint, the key and the model,
+  // so an answer without text is reported as a warning rather than a failure.
+  const { text, rawBody } = await requestCompletionRaw(
     full,
     "You are a connectivity test. Reply with the single word: pong",
     "ping",
   );
+  const diagnostics = inspectResponse(rawBody);
   return {
     endpoint,
-    reply: (reply || "").trim(),
+    reply: (text || "").trim(),
     elapsedMs: Date.now() - started,
+    emptyReply: !(text || "").trim(),
+    finishReason: diagnostics?.finishReason || "",
+    reasoningTokens: diagnostics?.reasoningTokens || 0,
   };
 }
 
@@ -688,7 +750,7 @@ export const CustomLLM: TranslateService = {
       .addTextSetting({
         prefKey: `${PREF}.model`,
         nameKey: "service-customllm-dialog-model",
-        placeholder: "deepseek-chat",
+        placeholder: "deepseek-flash",
       })
       .addStaticRow("", {
         tag: "div",
@@ -849,6 +911,18 @@ export const CustomLLM: TranslateService = {
           textContent: getString("service-customllm-dialog-sessionId-hint"),
         },
       })
+      .addStaticRow("", {
+        tag: "div",
+        namespace: "html",
+        styles: {
+          color: "var(--fill-secondary)",
+          fontSize: "0.9em",
+          maxWidth: "400px",
+        },
+        properties: {
+          textContent: getString("service-customllm-dialog-thinking-hint"),
+        },
+      })
       .addCustomHeadersSetting({
         prefKey: `${PREF}.customHeaders`,
         nameKey: "service-customllm-dialog-custom-headers",
@@ -877,15 +951,33 @@ export const CustomLLM: TranslateService = {
               temperature: cfg.temperature,
               maxTokens: cfg.maxTokens,
               customParams: cfg.customParams,
+              customHeaders: cfg.customHeaders,
+              sessionId: cfg.sessionId,
             });
-            setStatus(
-              `${getString("service-customllm-test-ok", {
-                args: {
-                  model: cfg.model,
-                  ms: result.elapsedMs,
-                },
-              })}${result.reply ? `\n${result.reply}` : ""}`,
-            );
+            if (result.emptyReply) {
+              // The endpoint, the key and the model are fine - the model just
+              // did not write any text, which is what a thinking model does
+              // when it runs out of output budget while thinking.
+              setStatus(
+                getString("service-customllm-test-ok-empty", {
+                  args: {
+                    model: cfg.model,
+                    ms: result.elapsedMs,
+                    tokens: result.reasoningTokens,
+                    reason: result.finishReason || "-",
+                  },
+                }),
+              );
+            } else {
+              setStatus(
+                `${getString("service-customllm-test-ok", {
+                  args: {
+                    model: cfg.model,
+                    ms: result.elapsedMs,
+                  },
+                })}\n${result.reply}`,
+              );
+            }
           } catch (e) {
             setStatus(
               `${getString("service-customllm-test-fail")}\n${

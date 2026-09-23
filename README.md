@@ -252,7 +252,7 @@ Set it up in **Edit → Settings → Translate → Service**:
    | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
    | **Provider preset**   | Pre-fills _Base URL_ and _Model ID_ for DeepSeek, OpenCode Zen or a custom provider. It only fills the fields — you can always overwrite them.                                                                                                             |
    | **Base URL**          | Base URL of the API. `/chat/completions` is appended automatically and the resulting _Request URL_ is previewed underneath. Examples: `https://api.deepseek.com/v1`, `https://opencode.ai/zen/v1`, `https://opencode.ai/zen/v1/responses` (Responses API). |
-   | **Model ID**          | Exact model ID of your provider, e.g. `deepseek-chat`, `deepseek-reasoner`, `deepseek-v4-flash`, `glm-5.3-flash`.                                                                                                                                          |
+   | **Model ID**          | Exact model ID of your provider, e.g. `deepseek-flash`, `deepseek-v4-pro`, `glm-5.3-flash`.                                                                                                                                                                |
    | **API Key**           | Optional copy of the key field above; both write the same value. Leave it untouched to keep the current key.                                                                                                                                               |
    | **Context window**    | Context size of the model in tokens (default `264000`). Long selections are split at paragraph/sentence boundaries so a single request never exceeds it, then translated in order and joined automatically.                                                |
    | **Max output tokens** | `0` lets the provider decide.                                                                                                                                                                                                                              |
@@ -278,12 +278,24 @@ below matter far more than anything else:
 
 1. **Use a fast model.** Flash / mini / lite tiers are several times quicker
    than the flagship ones, and are perfectly adequate for translation —
-   e.g. `deepseek-v4-flash`, `glm-5.3-flash`, `mimo-v2.6-flash`.
-2. **Turn off thinking / reasoning.** A reasoning model spends seconds
-   generating hidden reasoning tokens before the translation starts. If your
-   provider supports it, disable it in **Custom Request**, for example
-   `{"thinking": {"type": "disabled"}}` (GLM) or `{"enable_thinking": false}`
-   (Qwen). Check your provider's documentation for the exact field.
+   e.g. `deepseek-flash`, `glm-5.3-flash`, `mimo-v2.6-flash`.
+2. **Turn off thinking / reasoning — the second biggest win.** A thinking
+   model generates hidden reasoning tokens before it writes any translation,
+   which costs seconds per request and can even consume the whole output
+   budget. Disable it in **Custom Request**:
+
+   | Provider | Field to add                        |
+   | -------- | ----------------------------------- |
+   | DeepSeek | `thinking` = `{"type": "disabled"}` |
+   | GLM      | `thinking` = `{"type": "disabled"}` |
+   | Qwen     | `enable_thinking` = `false`         |
+
+   Thinking is **on by default** for DeepSeek, so this is worth setting even
+   if you did not ask for it. See the
+   [DeepSeek thinking-mode docs](https://api-docs.deepseek.com/guides/thinking_mode/).
+   Leaving thinking on is not an error: the plugin detects a reasoning-only
+   answer and tells you what happened.
+
 3. **Keep _Stream_ on.** It does not shorten the total time, but the answer
    appears as it is generated instead of after a long silence.
 4. **Leave _Attach paper context_ off** (Settings → Translate → General)

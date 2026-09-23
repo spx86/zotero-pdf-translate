@@ -325,3 +325,56 @@ export function resolveChatEndpoint(baseUrl: string): string {
   url.hash = "";
   return url.toString();
 }
+
+/**
+ * Facts about a completed (non-streaming) response that are useful when the
+ * answer turns out to be empty.
+ *
+ * Thinking models spend the output budget on `reasoning_content` before they
+ * write anything into `content`, so an empty answer usually means "the budget
+ * was consumed by reasoning", not "the request failed".
+ */
+export interface ResponseDiagnostics {
+  finishReason: string;
+  hasContent: boolean;
+  hasReasoning: boolean;
+  /** Reasoning ("thinking") tokens reported by the provider, if any. */
+  reasoningTokens: number;
+  completionTokens: number;
+}
+
+/** Extract diagnostics from a response body. Returns null if unparseable. */
+export function inspectResponse(rawBody: string): ResponseDiagnostics | null {
+  let obj: any;
+  try {
+    obj = JSON.parse((rawBody || "").trim());
+  } catch (e) {
+    return null;
+  }
+  if (!obj || typeof obj !== "object") {
+    return null;
+  }
+  // Responses API shape, or a gateway error object.
+  const choice = obj.choices?.[0];
+  if (!choice) {
+    return null;
+  }
+  const message = choice.message || {};
+  const details = obj.usage?.completion_tokens_details || {};
+  const reasoningTokens =
+    Number(details.reasoning_tokens ?? obj.usage?.reasoning_tokens ?? 0) || 0;
+  const content = typeof message.content === "string" ? message.content : "";
+  const reasoning =
+    typeof message.reasoning_content === "string"
+      ? message.reasoning_content
+      : typeof message.reasoning === "string"
+        ? message.reasoning
+        : "";
+  return {
+    finishReason: String(choice.finish_reason ?? ""),
+    hasContent: content.trim().length > 0,
+    hasReasoning: reasoning.trim().length > 0 || reasoningTokens > 0,
+    reasoningTokens,
+    completionTokens: Number(obj.usage?.completion_tokens ?? 0) || 0,
+  };
+}

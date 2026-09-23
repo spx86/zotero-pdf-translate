@@ -140,7 +140,7 @@ pref("__prefsPrefix__.customGPT3.temperature", "1.0");
 // key is NOT stored here, it lives in Zotero's shared secret store.
 pref("__prefsPrefix__.customllm.provider", "deepseek");
 pref("__prefsPrefix__.customllm.baseUrl", "https://api.deepseek.com/v1");
-pref("__prefsPrefix__.customllm.model", "deepseek-chat");
+pref("__prefsPrefix__.customllm.model", "deepseek-flash");
 pref("__prefsPrefix__.customllm.contextWindow", "264000");
 pref("__prefsPrefix__.customllm.maxTokens", "0");
 // How many parts of a long text are translated at the same time.
